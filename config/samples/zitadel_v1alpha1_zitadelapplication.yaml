@@ -1,0 +1,27 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: ZitadelApplication
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: my-web-app
+spec:
+  zitadelRef: zitadel-sample
+  projectRef: my-project
+  name: "My Web Application"
+  type: OIDC
+  oidc:
+    redirectUris:
+      - "https://app.example.com/callback"
+    postLogoutRedirectUris:
+      - "https://app.example.com"
+    responseTypes:
+      - CODE
+    grantTypes:
+      - AUTHORIZATION_CODE
+      - REFRESH_TOKEN
+    appType: WEB
+    authMethodType: BASIC
+    accessTokenType: BEARER
+    devMode: false
+  clientSecretRef: my-web-app-credentials

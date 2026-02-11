@@ -1,0 +1,9 @@
+## Append samples of your project ##
+resources:
+- zitadel_v1alpha1_zitadel.yaml
+- zitadel_v1alpha1_zitadelorganization.yaml
+- zitadel_v1alpha1_zitadelproject.yaml
+- zitadel_v1alpha1_zitadelapplication.yaml
+- zitadel_v1alpha1_zitadeluser.yaml
+- zitadel_v1alpha1_zitadelrole.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

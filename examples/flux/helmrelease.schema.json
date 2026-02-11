@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": [
+        "helm.toolkit.fluxcd.io/v2",
+        "helm.toolkit.fluxcd.io/v2beta1",
+        "helm.toolkit.fluxcd.io/v2beta2"
+      ]
+    },
+    "kind": {
+      "const": "HelmRelease"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "namespace": { "type": "string" }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "interval": {
+          "type": "string",
+          "pattern": "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"
+        },
+        "chart": {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "type": "object",
+              "properties": {
+                "chart": { "type": "string" },
+                "sourceRef": {
+                  "type": "object",
+                  "properties": {
+                    "kind": { "type": "string" },
+                    "name": { "type": "string" },
+                    "namespace": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "valuesFrom": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": { "type": "string", "enum": ["Secret", "ConfigMap"] },
+              "name": { "type": "string" },
+              "valuesKey": { "type": "string" },
+              "targetPath": { "type": "string" },
+              "optional": { "type": "boolean" }
+            }
+          }
+        },
+        "values": {
+          "$ref": "https://raw.githubusercontent.com/dragonhunter274/zitadel-operator/master/mediawiki-chart/values.schema.json"
+        }
+      }
+    }
+  }
+}

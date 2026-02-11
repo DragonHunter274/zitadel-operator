@@ -1,0 +1,17 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: ZitadelUser
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: service-account
+spec:
+  zitadelRef: zitadel-sample
+  organizationRef: my-org
+  type: Machine
+  userName: my-service-account
+  machine:
+    name: "My Service Account"
+    description: "Service account for backend services"
+    generatePAT: true
+  credentialSecretRef: my-service-account-pat

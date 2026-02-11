@@ -1,0 +1,51 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: Zitadel
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: zitadel-sample
+spec:
+  version: "v2.67.2"
+  replicas: 1
+  database:
+    host: postgres.default.svc.cluster.local
+    port: 5432
+    database: zitadel
+    sslMode: disable
+    adminCredentials:
+      name: postgres-admin-credentials
+      key: password
+    userCredentials:
+      name: postgres-user-credentials
+      key: password
+  network:
+    externalDomain: auth.example.com
+    externalPort: 443
+    externalSecure: true
+  masterkey:
+    name: zitadel-masterkey
+    key: masterkey
+  firstInstance:
+    org:
+      name: "Example Org"
+      human:
+        userName: admin
+        firstName: Admin
+        lastName: User
+        email: admin@example.com
+        passwordRef:
+          name: zitadel-admin-password
+          key: password
+  serviceAccount:
+    userName: zitadel-operator
+    secretName: zitadel-operator-sa
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    tls:
+      - hosts:
+          - auth.example.com
+        secretName: zitadel-tls

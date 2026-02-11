@@ -1,0 +1,50 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: zitadel-operator
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://github.com/dragonhunter274/zitadel-operator
+  ref:
+    branch: main
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: zitadel-operator
+  namespace: zitadel-system
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: charts/zitadel-operator
+      sourceRef:
+        kind: GitRepository
+        name: zitadel-operator
+        namespace: flux-system
+  install:
+    createNamespace: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    replicaCount: 1
+    leaderElection:
+      enabled: true
+    metrics:
+      enabled: true
+      secure: true
+    serviceMonitor:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi

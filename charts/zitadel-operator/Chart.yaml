@@ -1,0 +1,14 @@
+apiVersion: v2
+name: zitadel-operator
+description: A Kubernetes operator for managing Zitadel IDP instances and resources
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">= 1.28.0"
+keywords:
+  - zitadel
+  - identity
+  - oidc
+  - operator
+sources:
+  - https://github.com/dragonhunter274/zitadel-operator

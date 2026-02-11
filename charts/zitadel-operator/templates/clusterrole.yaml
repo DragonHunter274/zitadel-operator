@@ -1,0 +1,155 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "zitadel-operator.fullname" . }}-manager
+  labels:
+    {{- include "zitadel-operator.labels" . | nindent 4 }}
+rules:
+# Core resources managed by the Zitadel infrastructure controller
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+# Zitadel CRDs
+- apiGroups:
+  - zitadel.dragonhunter274.github.com
+  resources:
+  - zitadelapplications
+  - zitadelorganizations
+  - zitadelprojects
+  - zitadelroles
+  - zitadels
+  - zitadelusers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - zitadel.dragonhunter274.github.com
+  resources:
+  - zitadelapplications/finalizers
+  - zitadelorganizations/finalizers
+  - zitadelprojects/finalizers
+  - zitadelroles/finalizers
+  - zitadels/finalizers
+  - zitadelusers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - zitadel.dragonhunter274.github.com
+  resources:
+  - zitadelapplications/status
+  - zitadelorganizations/status
+  - zitadelprojects/status
+  - zitadelroles/status
+  - zitadels/status
+  - zitadelusers/status
+  verbs:
+  - get
+  - patch
+  - update
+# Metrics authorization
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+{{- if .Values.leaderElection.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "zitadel-operator.fullname" . }}-leader-election
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zitadel-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+{{- end }}

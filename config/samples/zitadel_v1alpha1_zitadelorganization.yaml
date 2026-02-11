@@ -1,0 +1,10 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: ZitadelOrganization
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: my-org
+spec:
+  zitadelRef: zitadel-sample
+  name: "My Organization"

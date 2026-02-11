@@ -1,0 +1,20 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: ZitadelRole
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: my-project-roles
+spec:
+  zitadelRef: zitadel-sample
+  projectRef: my-project
+  roles:
+    - key: admin
+      displayName: "Administrator"
+      group: "management"
+    - key: editor
+      displayName: "Editor"
+      group: "management"
+    - key: viewer
+      displayName: "Viewer"
+      group: "default"

@@ -1,0 +1,14 @@
+apiVersion: zitadel.dragonhunter274.github.com/v1alpha1
+kind: ZitadelProject
+metadata:
+  labels:
+    app.kubernetes.io/name: zitadel-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: my-project
+spec:
+  zitadelRef: zitadel-sample
+  organizationRef: my-org
+  name: "My Project"
+  projectRoleAssertion: true
+  projectRoleCheck: false
+  hasProjectCheck: false

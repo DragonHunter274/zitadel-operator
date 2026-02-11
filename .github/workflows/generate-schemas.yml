@@ -1,0 +1,61 @@
+name: Generate JSON Schemas
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+      - "config/crd/bases/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    name: Generate CRD JSON Schemas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Regenerate CRD manifests
+        run: make manifests
+
+      - name: Install openapi2jsonschema
+        run: pip install openapi2jsonschema
+
+      - name: Generate JSON Schemas
+        run: |
+          mkdir -p schemas
+          openapi2jsonschema --strict --expanded --kubernetes \
+            -o schemas \
+            config/crd/bases/*.yaml
+
+      - name: Rename schemas to friendly names
+        run: |
+          cd schemas
+          for f in *.json; do
+            # Extract the kind from the filename (e.g. zitadel-dragonhunter274-github-com-v1alpha1-zitadel.json -> zitadel.json)
+            kind=$(echo "$f" | sed 's/.*v1alpha1-//' )
+            if [ "$f" != "$kind" ]; then
+              mv "$f" "$kind"
+            fi
+          done
+
+      - name: Commit schemas
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add schemas/
+          if git diff --cached --quiet; then
+            echo "No schema changes"
+          else
+            git commit -m "chore: regenerate CRD JSON schemas"
+            git push
+          fi

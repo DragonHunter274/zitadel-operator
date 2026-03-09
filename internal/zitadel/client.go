@@ -29,7 +29,7 @@ func NewClient(baseURL, token string) *Client {
 	}
 }
 
-func (c *Client) do(ctx context.Context, method, path string, body interface{}, result interface{}, headers map[string]string) error {
+func (c *Client) do(ctx context.Context, method, path string, body any, result any, headers map[string]string) error {
 	var bodyReader io.Reader
 	if body != nil {
 		data, err := json.Marshal(body)
@@ -55,7 +55,7 @@ func (c *Client) do(ctx context.Context, method, path string, body interface{}, 
 	if err != nil {
 		return fmt.Errorf("do request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -202,7 +202,7 @@ func GetPasswordToken(ctx context.Context, baseURL, username, password string) (
 	if err != nil {
 		return "", fmt.Errorf("token request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
@@ -232,6 +232,6 @@ func (c *Client) IsReady(ctx context.Context) bool {
 	if err != nil {
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	return resp.StatusCode == http.StatusOK
 }

@@ -40,15 +40,15 @@ func getZitadelClient(ctx context.Context, c client.Client, namespace, zitadelRe
 	}
 
 	if z.Status.Phase != zitadelv1alpha1.PhaseRunning {
-		return nil, z, fmt.Errorf("Zitadel %s is not running (phase: %s)", zitadelRef, z.Status.Phase)
+		return nil, z, fmt.Errorf("zitadel %s is not running (phase: %s)", zitadelRef, z.Status.Phase)
 	}
 
 	if !z.Status.ServiceAccountReady {
-		return nil, z, fmt.Errorf("Zitadel %s service account not ready", zitadelRef)
+		return nil, z, fmt.Errorf("zitadel %s service account not ready", zitadelRef)
 	}
 
 	if z.Spec.ServiceAccount == nil {
-		return nil, z, fmt.Errorf("Zitadel %s has no serviceAccount configured", zitadelRef)
+		return nil, z, fmt.Errorf("zitadel %s has no serviceAccount configured", zitadelRef)
 	}
 
 	secretName := z.Spec.ServiceAccount.SecretName

@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -227,26 +228,26 @@ func (r *ZitadelReconciler) reconcileConfigMap(ctx context.Context, z *zitadelv1
 
 // buildConfigYAML builds the Zitadel YAML configuration merging spec fields with freeform config.
 func (r *ZitadelReconciler) buildConfigYAML(z *zitadelv1alpha1.Zitadel) []byte {
-	config := map[string]interface{}{
+	config := map[string]any{
 		"Port":           8080,
 		"ExternalDomain": z.Spec.Network.ExternalDomain,
 		"ExternalPort":   z.Spec.Network.ExternalPort,
 		"ExternalSecure": z.Spec.Network.ExternalSecure == nil || *z.Spec.Network.ExternalSecure,
-		"Database": map[string]interface{}{
-			"Postgres": map[string]interface{}{
+		"Database": map[string]any{
+			"Postgres": map[string]any{
 				"Host":            z.Spec.Database.Host,
 				"Port":            z.Spec.Database.Port,
 				"Database":        z.Spec.Database.Database,
 				"MaxOpenConns":    10,
 				"MaxIdleConns":    5,
 				"MaxConnLifetime": "30m",
-				"User": map[string]interface{}{
-					"SSL": map[string]interface{}{
+				"User": map[string]any{
+					"SSL": map[string]any{
 						"Mode": z.Spec.Database.SSLMode,
 					},
 				},
-				"Admin": map[string]interface{}{
-					"SSL": map[string]interface{}{
+				"Admin": map[string]any{
+					"SSL": map[string]any{
 						"Mode": z.Spec.Database.SSLMode,
 					},
 				},
@@ -255,7 +256,7 @@ func (r *ZitadelReconciler) buildConfigYAML(z *zitadelv1alpha1.Zitadel) []byte {
 	}
 
 	if z.Spec.Network.TLS != nil && z.Spec.Network.TLS.Enabled {
-		config["TLS"] = map[string]interface{}{
+		config["TLS"] = map[string]any{
 			"Enabled":  true,
 			"KeyPath":  "/etc/zitadel/tls/tls.key",
 			"CertPath": "/etc/zitadel/tls/tls.crt",
@@ -264,11 +265,9 @@ func (r *ZitadelReconciler) buildConfigYAML(z *zitadelv1alpha1.Zitadel) []byte {
 
 	// Merge freeform configuration
 	if z.Spec.Configuration != nil && z.Spec.Configuration.Raw != nil {
-		var userConfig map[string]interface{}
+		var userConfig map[string]any
 		if err := json.Unmarshal(z.Spec.Configuration.Raw, &userConfig); err == nil {
-			for k, v := range userConfig {
-				config[k] = v
-			}
+			maps.Copy(config, userConfig)
 		}
 	}
 
@@ -282,15 +281,15 @@ func (r *ZitadelReconciler) buildStepsYAML(z *zitadelv1alpha1.Zitadel) string {
 		return "{}"
 	}
 	fi := z.Spec.FirstInstance
-	steps := map[string]interface{}{
-		"FirstInstance": map[string]interface{}{
-			"Org": map[string]interface{}{
+	steps := map[string]any{
+		"FirstInstance": map[string]any{
+			"Org": map[string]any{
 				"Name": fi.Org.Name,
-				"Human": map[string]interface{}{
+				"Human": map[string]any{
 					"UserName":  fi.Org.Human.UserName,
 					"FirstName": fi.Org.Human.FirstName,
 					"LastName":  fi.Org.Human.LastName,
-					"Email": map[string]interface{}{
+					"Email": map[string]any{
 						"Address":    fi.Org.Human.Email,
 						"IsVerified": true,
 					},
@@ -316,13 +315,13 @@ func (r *ZitadelReconciler) reconcileDBSecret(ctx context.Context, z *zitadelv1a
 	}
 
 	// Build the database YAML overlay with actual credentials
-	dbConfig := map[string]interface{}{
-		"Database": map[string]interface{}{
-			"Postgres": map[string]interface{}{
-				"User": map[string]interface{}{
+	dbConfig := map[string]any{
+		"Database": map[string]any{
+			"Postgres": map[string]any{
+				"User": map[string]any{
 					"Password": appUser,
 				},
-				"Admin": map[string]interface{}{
+				"Admin": map[string]any{
 					"Password": adminUser,
 				},
 			},

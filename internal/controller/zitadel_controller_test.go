@@ -51,7 +51,18 @@ var _ = Describe("Zitadel Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: zitadelv1alpha1.ZitadelSpec{
+						Version: "v2.67.2",
+						Database: zitadelv1alpha1.DatabaseSpec{
+							Host:             "localhost",
+							AdminCredentials: zitadelv1alpha1.SecretKeyRef{Name: "db-admin"},
+							UserCredentials:  zitadelv1alpha1.SecretKeyRef{Name: "db-user"},
+						},
+						Network: zitadelv1alpha1.NetworkSpec{
+							ExternalDomain: "auth.example.com",
+						},
+						Masterkey: zitadelv1alpha1.SecretKeyRef{Name: "masterkey"},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

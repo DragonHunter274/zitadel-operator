@@ -51,7 +51,16 @@ var _ = Describe("ZitadelUser Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: zitadelv1alpha1.ZitadelUserSpec{
+						ZitadelRef: "test-zitadel",
+						Type:       "Human",
+						UserName:   "testuser",
+						Human: &zitadelv1alpha1.HumanUserSpec{
+							FirstName: "Test",
+							LastName:  "User",
+							Email:     "test@example.com",
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

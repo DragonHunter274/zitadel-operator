@@ -63,7 +63,7 @@ func (r *ZitadelOrganizationReconciler) Reconcile(ctx context.Context, req ctrl.
 	}
 
 	// Get Zitadel API client
-	zClient, _, err := getZitadelClient(ctx, r.Client, org.Namespace, org.Spec.ZitadelRef)
+	zClient, err := getZitadelClient(ctx, r.Client, org.Namespace, org.Spec.ZitadelRef)
 	if err != nil {
 		log.Info("Zitadel not ready, requeuing", "error", err.Error())
 		setCondition(&org.Status.Conditions, zitadelv1alpha1.ConditionTypeZitadelAvailable,
@@ -104,7 +104,7 @@ func (r *ZitadelOrganizationReconciler) handleDeletion(ctx context.Context, org 
 	log := logf.FromContext(ctx)
 
 	if org.Status.OrgID != "" {
-		zClient, _, err := getZitadelClient(ctx, r.Client, org.Namespace, org.Spec.ZitadelRef)
+		zClient, err := getZitadelClient(ctx, r.Client, org.Namespace, org.Spec.ZitadelRef)
 		if err != nil {
 			log.Info("Zitadel not available for cleanup, removing finalizer")
 		} else {

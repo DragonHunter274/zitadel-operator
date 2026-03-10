@@ -60,7 +60,7 @@ func (r *ZitadelProjectReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		}
 	}
 
-	zClient, _, err := getZitadelClient(ctx, r.Client, proj.Namespace, proj.Spec.ZitadelRef)
+	zClient, err := getZitadelClient(ctx, r.Client, proj.Namespace, proj.Spec.ZitadelRef)
 	if err != nil {
 		log.Info("Zitadel not ready, requeuing", "error", err.Error())
 		return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
@@ -115,7 +115,7 @@ func (r *ZitadelProjectReconciler) handleDeletion(ctx context.Context, proj *zit
 	log := logf.FromContext(ctx)
 
 	if proj.Status.ProjectID != "" {
-		zClient, _, err := getZitadelClient(ctx, r.Client, proj.Namespace, proj.Spec.ZitadelRef)
+		zClient, err := getZitadelClient(ctx, r.Client, proj.Namespace, proj.Spec.ZitadelRef)
 		if err != nil {
 			log.Info("Zitadel not available for cleanup, removing finalizer")
 		} else {

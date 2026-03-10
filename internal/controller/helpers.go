@@ -33,22 +33,22 @@ import (
 )
 
 // getZitadelClient resolves a Zitadel CR reference and returns an API client.
-func getZitadelClient(ctx context.Context, c client.Client, namespace, zitadelRef string) (*zitadel.Client, *zitadelv1alpha1.Zitadel, error) {
+func getZitadelClient(ctx context.Context, c client.Client, namespace, zitadelRef string) (*zitadel.Client, error) {
 	z := &zitadelv1alpha1.Zitadel{}
 	if err := c.Get(ctx, types.NamespacedName{Name: zitadelRef, Namespace: namespace}, z); err != nil {
-		return nil, nil, fmt.Errorf("get Zitadel %s: %w", zitadelRef, err)
+		return nil, fmt.Errorf("get Zitadel %s: %w", zitadelRef, err)
 	}
 
 	if z.Status.Phase != zitadelv1alpha1.PhaseRunning {
-		return nil, z, fmt.Errorf("zitadel %s is not running (phase: %s)", zitadelRef, z.Status.Phase)
+		return nil, fmt.Errorf("zitadel %s is not running (phase: %s)", zitadelRef, z.Status.Phase)
 	}
 
 	if !z.Status.ServiceAccountReady {
-		return nil, z, fmt.Errorf("zitadel %s service account not ready", zitadelRef)
+		return nil, fmt.Errorf("zitadel %s service account not ready", zitadelRef)
 	}
 
 	if z.Spec.ServiceAccount == nil {
-		return nil, z, fmt.Errorf("zitadel %s has no serviceAccount configured", zitadelRef)
+		return nil, fmt.Errorf("zitadel %s has no serviceAccount configured", zitadelRef)
 	}
 
 	secretName := z.Spec.ServiceAccount.SecretName
@@ -58,16 +58,16 @@ func getZitadelClient(ctx context.Context, c client.Client, namespace, zitadelRe
 
 	secret := &corev1.Secret{}
 	if err := c.Get(ctx, types.NamespacedName{Name: secretName, Namespace: namespace}, secret); err != nil {
-		return nil, z, fmt.Errorf("get operator SA secret %s: %w", secretName, err)
+		return nil, fmt.Errorf("get operator SA secret %s: %w", secretName, err)
 	}
 
 	token := string(secret.Data["token"])
 	if token == "" {
-		return nil, z, fmt.Errorf("operator SA secret %s has no 'token' key", secretName)
+		return nil, fmt.Errorf("operator SA secret %s has no 'token' key", secretName)
 	}
 
 	baseURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:8080", z.Name, namespace)
-	return zitadel.NewClient(baseURL, token), z, nil
+	return zitadel.NewClient(baseURL, token), nil
 }
 
 // resolveOrgID looks up a ZitadelOrganization by name and returns its OrgID.
